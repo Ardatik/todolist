@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать в Туду лист</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Верхняя панель с кнопками */
+        .navbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            align-items: center;
+        }
+
+        .navbar .username {
+            margin-right: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .navbar button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Центрированный текст */
+        .content {
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .content p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .content .create-task-link {
+            font-size: 20px;
+            color: #007bff;
+            text-decoration: none;
+            border: 2px solid #007bff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .content .create-task-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px;
+            }
+
+            .navbar button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            .content h1 {
+                font-size: 28px;
+            }
+
+            .content p {
+                font-size: 16px;
+            }
+
+            .content .create-task-link {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        {% if user.is_authenticated %}
+            <div class="username">Привет, {{ user.username }}!</div>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Выход</button>
+            </form>
+        {% else %}
+            <button onclick="window.location.href='/auth/login/'">Вход</button>
+            <button onclick="window.location.href='/auth/registration/'">Регистрация</button>
+        {% endif %}
+    </div>
+
+    <div class="content">
+        <h1>Добро пожаловать в Туду лист</h1>
+        <p>Управляйте своими задачами легко и эффективно с помощью нашего приложения. Создавайте, организуйте и контролируйте свои дела в одном месте.</p>
+        
+        <a href="/to-do/" class="create-task-link">Создать задачу</a>
+    </div>
+
+</body>
+</html>

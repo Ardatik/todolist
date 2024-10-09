@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список задач</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .username {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .navbar button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar button:hover {
+            background-color: #0056b3;
+        }
+
+        .content {
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 80px;
+            width: 90%;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .task-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .task-form label {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .task-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .task-form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Стиль для задач */
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .task.completed {
+            border-color: #28a745; /* Зелёная рамка для завершённых задач */
+            background-color: #e6ffed; /* Светло-зелёный фон */
+        }
+
+        .task.incomplete {
+            border-color: #ccc;
+            background-color: white;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px;
+            }
+
+            .navbar button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            .content h1 {
+                font-size: 28px;
+            }
+
+            .task-form label {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <span class="username">{{ request.user.username }}</span>
+        <a href="{% url 'logout' %}">
+            <button>Выйти</button>
+        </a>
+    </div>
+
+    <div class="content">
+        <h1>Список задач на {{ current_date }}</h1>
+
+        <section>
+            <h2>Добавить задачу</h2>
+            <form method="post" action="" class="task-form">
+                {% csrf_token %}
+                <div>
+                    <label for="day_tasks">Задача:</label>
+                    {{ form.day_tasks }}
+                </div>
+                <div>
+                    <label for="prioritet">Приоритет:</label>
+                    {{ form.prioritet }}
+                </div>
+                <button type="submit">Добавить задачу</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Задачи на {{ current_date }}</h2>
+            <ul>
+                {% for task in todos %}
+                    <li class="task {% if task.completed_task %}completed{% else %}incomplete{% endif %}" data-task-id="{{ task.id }}">
+                        <strong>{{ task.day_tasks }}</strong> 
+                        - приоритет: {{ task.get_prioritet_display }}
+                    </li>
+                {% empty %}
+                    <li>На сегодня задач нет.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tasks = document.querySelectorAll('.task');
+            
+            tasks.forEach(task => {
+                task.addEventListener('click', function() {
+                    const taskId = this.dataset.taskId;
+
+                    fetch(`/toggle-task-completion/${taskId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            if (this.classList.contains('completed')) {
+                                this.classList.remove('completed');
+                                this.classList.add('incomplete');
+                            } else {
+                                this.classList.remove('incomplete');
+                                this.classList.add('completed');
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
